@@ -1,0 +1,23 @@
+{
+  "name": "stockbot",
+  "version": "1.0.0",
+  "description": "AI 주식 애널리스트",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dasse01/stockbot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Dasse01/stockbot/issues"
+  },
+  "homepage": "https://github.com/Dasse01/stockbot#readme",
+  "dependencies": {
+    "openai": "^4.89.0"
+  }
+}
