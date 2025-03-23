@@ -38,7 +38,7 @@
     async function fetchGPTResult(type) {
       const stock = document.getElementById("stockInput").value.trim() || "삼성전자";
       const resultBox = document.getElementById("output");
-      resultBox.innerText = "⌨️ GPT-4가 실시간 분석 중입니다...\\n\\n";
+      resultBox.textContent = "⌨️ GPT-4가 실시간 분석 중입니다...\n\n";
 
       const typeMap = {
         fundamental: "① 기본적 분석 (PER, PBR, 재무 건전성, 실적 등)",
@@ -52,34 +52,22 @@
 
       const prompt = `"${stock}" 종목에 대해 ${typeMap[type]} 간결하고 명확하게 알려줘.`;
 
-      const response = await fetch("/.netlify/functions/gpt", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt })
-      });
+      try {
+        const response = await fetch("/.netlify/functions/gpt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt })
+        });
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder("utf-8");
-      let resultText = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        const lines = chunk.split("\n").filter(line => line.trim().startsWith("data:"));
-
-        for (const line of lines) {
-          const data = line.replace("data: ", "").trim();
-          if (data === "[DONE]") break;
-
-          const parsed = JSON.parse(data);
-          const content = parsed.choices?.[0]?.delta?.content;
-          if (content) {
-            resultText += content;
-            resultBox.innerText = resultText;
-          }
+        if (!response.ok) {
+          throw new Error(`서버 오류: ${response.status}`);
         }
+
+        const data = await response.json();
+        resultBox.textContent = data.result || "❌ 응답이 없습니다.";
+      } catch (error) {
+        console.error("에러:", error);
+        resultBox.textContent = `❌ GPT 호출 중 오류가 발생했습니다.\n\n${error.message}`;
       }
     }
   </script>
