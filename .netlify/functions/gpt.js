@@ -1,28 +1,33 @@
-export default async (req, context) => {
-  const body = await req.json();
-  const prompt = body.prompt || "삼성전자 종목을 분석해줘";
+const { Configuration, OpenAIApi } = require("openai");
 
-  const apiKey = process.env.OPENAI_API_KEY;
+exports.handler = async (event) => {
+  const { prompt } = JSON.parse(event.body || "{}");
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
+  const configuration = new Configuration({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+
+  const openai = new OpenAIApi(configuration);
+
+  try {
+    const completion = await openai.createChatCompletion({
       model: "gpt-4",
       messages: [
         { role: "system", content: "당신은 최고의 주식 애널리스트입니다." },
-        { role: "user", content: prompt },
+        { role: "user", content: prompt }
       ],
-      temperature: 0.6,
-    }),
-  });
+      temperature: 0.6
+    });
 
-  const data = await response.json();
-
-  return new Response(JSON.stringify(data), {
-    headers: { "Content-Type": "application/json" },
-  });
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ result: completion.data.choices[0].message.content })
+    };
+  } catch (err) {
+    console.error("OpenAI 오류:", err);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: "OpenAI 호출 실패" })
+    };
+  }
 };
