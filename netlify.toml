@@ -1,8 +1,2 @@
-[build]
-  functions = ".netlify/functions"
-  publish = "."
-
-[[redirects]]
-  from = "/api/gpt"
-  to = "/.netlify/functions/gpt"
-  status = 200
+[functions]
+  directory = "netlify/functions"
